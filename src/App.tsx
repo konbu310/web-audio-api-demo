@@ -1,8 +1,10 @@
 import { FC, useState, useRef } from "react";
+import cx from "clsx";
 import "./App.css";
 
 const AudioElement: FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isPlayed, setIsPlayed] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const onLoad = () => {
@@ -21,6 +23,7 @@ const AudioElement: FC = () => {
     const elm = audioRef.current;
     if (!elm) return;
     elm.play();
+    setIsPlayed(true);
   };
 
   const onStop = () => {
@@ -28,14 +31,21 @@ const AudioElement: FC = () => {
     if (!elm) return;
     elm.pause();
     elm.currentTime = 0;
+    setIsPlayed(false);
   };
 
   return (
-    <div>
+    <div className="box">
       <h2>1. AudioElement</h2>
-      <button onClick={onLoad}>Load</button>
+      <button disabled={isLoaded} onClick={onLoad}>
+        Load
+      </button>
       &emsp;
-      <button disabled={!isLoaded} onClick={onPlay}>
+      <button
+        disabled={!isLoaded}
+        onClick={onPlay}
+        className={cx({ played: isPlayed })}
+      >
         Play
       </button>
       &emsp;
@@ -49,7 +59,7 @@ const AudioElement: FC = () => {
 
 const AudioBufferSourceNode: FC = () => {
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
-  const [isPlay, setIsPlay] = useState(false);
+  const [isPlayed, setIsPlayed] = useState(false);
   const audioBuffer = useRef<AudioBuffer | null>(null);
   const audioNode = useRef<AudioBufferSourceNode | null>(null);
 
@@ -64,7 +74,7 @@ const AudioBufferSourceNode: FC = () => {
   };
 
   const onPlay = () => {
-    if (isPlay) {
+    if (isPlayed) {
       audioNode.current?.stop();
     }
     const track = audioBuffer.current;
@@ -77,7 +87,7 @@ const AudioBufferSourceNode: FC = () => {
     const gainNode = audioContext.createGain();
     source.connect(gainNode).connect(audioContext.destination);
     source.start();
-    setIsPlay(true);
+    setIsPlayed(true);
     audioNode.current = source;
   };
 
@@ -85,15 +95,21 @@ const AudioBufferSourceNode: FC = () => {
     const source = audioNode.current;
     if (!source) return;
     source.stop();
-    setIsPlay(false);
+    setIsPlayed(false);
   };
 
   return (
-    <div>
+    <div className="box">
       <h2>2. AudioBufferSourceNode</h2>
-      <button onClick={onLoad}>Load</button>
+      <button disabled={!!audioContext} onClick={onLoad}>
+        Load
+      </button>
       &emsp;
-      <button disabled={!audioContext} onClick={onPlay}>
+      <button
+        disabled={!audioContext}
+        onClick={onPlay}
+        className={cx({ played: isPlayed })}
+      >
         Play
       </button>
       &emsp;
@@ -106,6 +122,7 @@ const AudioBufferSourceNode: FC = () => {
 
 const MediaElementAudioSourceNode: FC = () => {
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+  const [isPlayed, setIsPlayed] = useState(false);
   const sourceNode = useRef<MediaElementAudioSourceNode | null>(null);
 
   const onLoad = async () => {
@@ -129,6 +146,7 @@ const MediaElementAudioSourceNode: FC = () => {
     const node = sourceNode.current;
     if (!node) return;
     node.mediaElement.play();
+    setIsPlayed(true);
   };
 
   const onStop = () => {
@@ -136,14 +154,21 @@ const MediaElementAudioSourceNode: FC = () => {
     if (!node) return;
     node.mediaElement.pause();
     node.mediaElement.currentTime = 0;
+    setIsPlayed(false);
   };
 
   return (
-    <div>
+    <div className="box">
       <h2>3. MediaElementAudioSourceNode</h2>
-      <button onClick={onLoad}>Load</button>
+      <button disabled={!!audioContext} onClick={onLoad}>
+        Load
+      </button>
       &emsp;
-      <button disabled={!audioContext} onClick={onPlay}>
+      <button
+        disabled={!audioContext}
+        onClick={onPlay}
+        className={cx({ played: isPlayed })}
+      >
         Play
       </button>
       &emsp;
@@ -159,7 +184,7 @@ function App() {
     <div className="App">
       <h1>WebAudio API DEMO</h1>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
+      <div style={{ display: "flex", gap: "2.5rem" }}>
         <AudioElement />
         <AudioBufferSourceNode />
         <MediaElementAudioSourceNode />
